@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neighborhood Garden Market</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">🌱 Garden Market</h1>
+                <button class="add-listing-btn" id="addListingBtn">+ Add Listing</button>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Filter by Produce</h3>
+                    <div class="filter-options">
+                        <label class="filter-option">
+                            <input type="checkbox" value="vegetables" checked>
+                            <span>🥬 Vegetables</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="fruits" checked>
+                            <span>🍎 Fruits</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="herbs" checked>
+                            <span>🌿 Herbs</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="eggs" checked>
+                            <span>🥚 Eggs</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="honey" checked>
+                            <span>🍯 Honey</span>
+                        </label>
+                        <label class="filter-option">
+                            <input type="checkbox" value="other" checked>
+                            <span>🌾 Other</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Price Range</h3>
+                    <div class="price-filter">
+                        <input type="range" id="priceRange" min="0" max="50" value="50" class="price-slider">
+                        <div class="price-labels">
+                            <span>$0</span>
+                            <span id="priceValue">$50</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-section">
+                    <h3>Distance</h3>
+                    <div class="distance-filter">
+                        <input type="range" id="distanceRange" min="0.5" max="10" step="0.5" value="5"
+                            class="distance-slider">
+                        <div class="distance-labels">
+                            <span>0.5 mi</span>
+                            <span id="distanceValue">5 mi</span>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="clear-filters-btn" id="clearFiltersBtn">Clear All Filters</button>
+            </aside>
+
+            <!-- Map Container -->
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-controls">
+                    <button class="map-control-btn" id="locateMeBtn" title="Find My Location">
+                        📍
+                    </button>
+                    <button class="map-control-btn" id="resetViewBtn" title="Reset View">
+                        🏠
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Listing Modal -->
+    <div class="modal" id="addListingModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Listing</h2>
+                <button class="close-btn" id="closeModal">&times;</button>
+            </div>
+            <form id="listingForm">
+                <div class="form-group">
+                    <label for="produceName">Produce Name *</label>
+                    <input type="text" id="produceName" required placeholder="e.g., Fresh Tomatoes">
+                </div>
+
+                <div class="form-group">
+                    <label for="produceType">Category *</label>
+                    <select id="produceType" required>
+                        <option value="">Select category</option>
+                        <option value="vegetables">🥬 Vegetables</option>
+                        <option value="fruits">🍎 Fruits</option>
+                        <option value="herbs">🌿 Herbs</option>
+                        <option value="eggs">🥚 Eggs</option>
+                        <option value="honey">🍯 Honey</option>
+                        <option value="other">🌾 Other</option>
+                    </select>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="price">Price *</label>
+                        <div class="price-input">
+                            <span>$</span>
+                            <input type="number" id="price" min="0" step="0.01" required placeholder="5.00">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="unit">Unit</label>
+                        <select id="unit">
+                            <option value="lb">per lb</option>
+                            <option value="bunch">per bunch</option>
+                            <option value="dozen">per dozen</option>
+                            <option value="piece">per piece</option>
+                            <option value="jar">per jar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" rows="3" placeholder="Tell neighbors about your produce..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="address">Address *</label>
+                    <input type="text" id="address" required placeholder="Enter your address">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact">Contact Info</label>
+                    <input type="text" id="contact" placeholder="Phone or email">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" id="cancelBtn">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Listing</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Listing Details Modal -->
+    <div class="modal" id="listingDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailTitle">Listing Details</h2>
+                <button class="close-btn" id="closeDetailsModal">&times;</button>
+            </div>
+            <div class="listing-details">
+                <div class="detail-item">
+                    <span class="detail-label">Category:</span>
+                    <span id="detailCategory" class="detail-value"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Price:</span>
+                    <span id="detailPrice" class="detail-value"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Description:</span>
+                    <p id="detailDescription" class="detail-value"></p>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Address:</span>
+                    <span id="detailAddress" class="detail-value"></span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Contact:</span>
+                    <span id="detailContact" class="detail-value"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
